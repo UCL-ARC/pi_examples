@@ -1,5 +1,6 @@
 const std = @import("std");
 
+// Implementation in zig
 pub fn main() !void {
 
 	// Is this really all necessary?
