@@ -1,9 +1,10 @@
 help:
 	@echo ''
-	@echo 'make intel    Build with ifort.'
-	@echo 'make nag      Build with nagfor.'
-	@echo 'make gfortran Build with gfortran.'
-	@echo 'make pgi      Build with pgfortran.'
+	@echo 'make intel    Build with ifort. (Intel compilers)'
+	@echo 'make nag      Build with nagfor. (NAG compilers)'
+	@echo 'make gfortran Build with gfortran. (GNU compilers)'
+	@echo 'make nvhpc    Build with nvhpc. (Nvidia compilers)'
+	@echo 'make aurora   Build with nfort. (NEC Aurora compilers)'
 	@echo ''
 
 .DEFAULT:
