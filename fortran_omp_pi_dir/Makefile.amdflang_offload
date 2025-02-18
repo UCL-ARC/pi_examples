@@ -1,0 +1,15 @@
+EXEC=pi_gpu
+
+FC=amdflang 
+
+FOPT=$(FCFLAGS) -O2 -fopenmp -fopenmp-offload-mandatory --offload-arch=gfx942
+
+$(EXEC): pi_gpu.f90
+	$(FC) $(FOPT) -o $(EXEC) pi_gpu.f90
+
+
+clean:
+	rm -f *.o $(EXEC)
+
+.PHONY: clean
+
