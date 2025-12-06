@@ -24,6 +24,7 @@ __global__ void calcpi(int threads, long n, double *results) {
 }
 
 int main( int argc, char **argv ) {
+   hipError_t dummy;
    long num_steps = 1000000000;
    double result;
    int threads = 1000; // threads needs to dived num_steps!
@@ -51,10 +52,10 @@ int main( int argc, char **argv ) {
    step = 1.0 / num_steps;
    sum = (double*)malloc(size);
 
-   hipMalloc((void**)&d_sum, size);
+   dummy = hipMalloc((void**)&d_sum, size);
    calcpi<<<1,threads>>>(threads, num_steps, d_sum);
-   hipMemcpy(sum, d_sum, size, hipMemcpyDeviceToHost);
-   hipFree(d_sum);
+   dummy = hipMemcpy(sum, d_sum, size, hipMemcpyDeviceToHost);
+   dumym = hipFree(d_sum);
 
    result = 0.0;
 
