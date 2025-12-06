@@ -55,7 +55,7 @@ int main( int argc, char **argv ) {
    dummy = hipMalloc((void**)&d_sum, size);
    calcpi<<<1,threads>>>(threads, num_steps, d_sum);
    dummy = hipMemcpy(sum, d_sum, size, hipMemcpyDeviceToHost);
-   dumym = hipFree(d_sum);
+   dummy = hipFree(d_sum);
 
    result = 0.0;
 
