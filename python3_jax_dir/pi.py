@@ -9,7 +9,7 @@ def y(x):
 	return 4.0/(1.0 + (x**2))
 
 def estimate_pi(slices, devices, prerun):
-	print(f"Estimating Pi with:\n  {slices} slices\n  {devices} devices(s)\n  JAX device: {jax.devices()[0]}")
+	print(f"Estimating Pi with:\n  {slices} slices\n  {devices} devices(s)\n  JAX device is {jax.devices()[0]}")
 	t1 = time.time()
 	x = jax.numpy.linspace(0, 1.0, slices, dtype=jax.numpy.float32).reshape((devices,-1))
 	if prerun:
