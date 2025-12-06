@@ -18,7 +18,7 @@ def estimate_pi(slices, devices, prerun):
 	p = jax.numpy.sum(y(x))/n
 	t3 = time.time()
 
-	print(f"Estimated value of Pi: {p}")
+	print(f"Estimated value of Pi: {p} ({p.dtype})")
 	if prerun:
 		print(f"Time taken in prerun: {t2 - t1} seconds.\nTime taken in computation: {t3 - t2} seconds.\n")
 	else:
