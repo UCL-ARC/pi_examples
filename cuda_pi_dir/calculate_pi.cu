@@ -8,14 +8,13 @@
 
 using namespace std;
 
-__global__ void calcpi(int threads, long n, double *results) {
-   int rank = threadIdx.x;
+__global__ void calcpi(double step, long work_per_thread, double *results) {
+   int rank = blockIdx.x * blockDim.x + threadIdx.x;
    results[rank] = 0.0;
-   double step = 1.0/n;
    double x = 0.0;
 
-   long lower = rank * n/threads;
-   long upper = (rank + 1) * n/threads;
+   long lower = rank * work_per_thread;
+   long upper = lower + work_per_thread;
 
    for (long i = lower; i < upper; i++) {
       x    = (i + 0.5) * step;
@@ -29,7 +28,7 @@ int main( int argc, char **argv ) {
    int threads = 1000; // threads needs to dived num_steps!
 
    cout.precision(numeric_limits<double>::digits10+2);
-   
+
    if (argc > 1) {
       num_steps = atol(argv[1]);
    }
@@ -39,20 +38,24 @@ int main( int argc, char **argv ) {
 
    double step, pi;
    Timer timer;
-   
+
    cout << "Calculating PI using:" << endl <<
            "  " << num_steps << " slices" << endl <<
            "  " << threads << " CUDA threads" << endl;
-   
-   timer.start();
-   
+
    double *sum, *d_sum;
    size_t size = threads*sizeof(double);
    step = 1.0 / num_steps;
+   long work_per_thread = num_steps / threads;
    sum = (double*)malloc(size);
 
    cudaMalloc((void**)&d_sum, size);
-   calcpi<<<1,threads>>>(threads, num_steps, d_sum);
+   int threadsPerBlock = 128;
+   int numBlocks = (threads + threadsPerBlock - 1) / threadsPerBlock;
+   timer.start();
+   calcpi<<<numBlocks, threadsPerBlock>>>(step, work_per_thread, d_sum);
+   cudaDeviceSynchronize();
+   timer.stop();
    cudaMemcpy(sum, d_sum, size, cudaMemcpyDeviceToHost);
    cudaFree(d_sum);
 
@@ -63,11 +66,9 @@ int main( int argc, char **argv ) {
    }
    pi = result * step;
 
-   timer.stop();
 
    cout << "Obtained value for PI: " << pi << endl <<
            "Time taken: " << timer.duration() << " seconds" << endl;
 
    return 0;
 }
-
