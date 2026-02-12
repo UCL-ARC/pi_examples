@@ -1,7 +1,8 @@
 EXEC=calculate_pi
+NVCC=nvcc
 
 $(EXEC): calculate_pi.cu timer.hpp
-	nvcc $(CXXFLAGS) -o $(EXEC) calculate_pi.cu
+	$(NVCC) $(CXXFLAGS) -o $(EXEC) calculate_pi.cu
 
 clean:
 	rm -f $(EXEC) 
