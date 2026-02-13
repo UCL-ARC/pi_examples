@@ -26,7 +26,6 @@ int main( int argc, char **argv ) {
    double result;
    int blocks = 4096;
    int threads_per_block = 512;
-   int tot_threads = blocks * threads_per_block;
    long num_steps = 1099511627776; // must be a multiple of tot_threads
 
    cout.precision(numeric_limits<double>::digits10+2);
@@ -37,6 +36,8 @@ int main( int argc, char **argv ) {
    if (argc > 2) {
       threads_per_block = atol(argv[2]);
    }
+
+   int tot_threads = blocks * threads_per_block;
 
    double step, pi;
    Timer timer;
