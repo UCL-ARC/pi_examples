@@ -29,21 +29,22 @@ int main(int argc, char **argv) {
    
    auto start = std::chrono::high_resolution_clock::now();
 
-   double s = 0.0;
-   sycl::buffer<double> sumbuf { &s, 1 };
+   double* s = sycl::malloc_shared<double>(1, q);
+   s[0] = 0.0;
    step = 1.0 / num_steps;
 
    q.submit([&](sycl::handler &cgh) {
 
-      auto sr = sycl::reduction(sumbuf, cgh, sycl::plus<>());
+      auto sr = sycl::reduction(s, sycl::plus<double>());
 
-      cgh.parallel_for (sycl::range<1>(num_steps), sr, [=] (sycl::id<1> i, auto& s) {
+      cgh.parallel_for (sycl::range<1>(num_steps), sr, [=] (sycl::id<1> i, auto& slocal) {
          double x    = ((double)i + 0.5) * step;
-         s +=  4.0 / (1.0 + x*x);
+         slocal +=  4.0 / (1.0 + x*x);
       });
-   });
+   }).wait();
 
-   sum = sumbuf.get_host_access()[0];
+   sum = s[0];
+   sycl::free(s, q);
    pi = sum * step;
 
    auto stop = std::chrono::high_resolution_clock::now();
