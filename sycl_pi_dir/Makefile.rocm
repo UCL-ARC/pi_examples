@@ -1,4 +1,4 @@
-EXEC=pi
+EXEC=pi_rocm
 CXX=acpp
 CXXFLAGS=-O2 --acpp-targets="hip:gfx942"
 
