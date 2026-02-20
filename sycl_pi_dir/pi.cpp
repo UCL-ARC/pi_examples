@@ -4,10 +4,6 @@
 #include <chrono>
 #include <sycl/sycl.hpp>
 
-//using namespace sycl;
-//using namespace std;
-//using namespace std::chrono;
-
 int main(int argc, char **argv) {
    long i, num_steps = 1000000000;
 
