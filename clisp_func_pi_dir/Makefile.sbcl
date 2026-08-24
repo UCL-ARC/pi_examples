@@ -1,5 +1,5 @@
 CLISP=sbcl
-CLOPTS=--eval "(setf *read-default-float-format* 'double-float)" --control-stack-size 256 --script
+CLOPTS=--control-stack-size 256 --eval "(setf *read-default-float-format* 'double-float)" --script
 
 run: 
 	@$(CLISP) $(CLOPTS) pi.cl $(PI_ARG)
