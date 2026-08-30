@@ -8,14 +8,13 @@
 
 using namespace std;
 
-__global__ void calcpi(int threads, long n, double *results) {
-   int rank = threadIdx.x;
+__global__ void calcpi(double step, long work_per_thread, double *results) {
+   int rank = blockIdx.x * blockDim.x + threadIdx.x;
    results[rank] = 0.0;
-   double step = 1.0/n;
    double x = 0.0;
 
-   long lower = rank * n/threads;
-   long upper = (rank + 1) * n/threads;
+   long lower = rank * work_per_thread;
+   long upper = lower + work_per_thread;
 
    for (long i = lower; i < upper; i++) {
       x    = (i + 0.5) * step;
@@ -24,50 +23,53 @@ __global__ void calcpi(int threads, long n, double *results) {
 }
 
 int main( int argc, char **argv ) {
-   long num_steps = 1000000000;
    double result;
-   int threads = 1000; // threads needs to dived num_steps!
+   int blocks = 4096;
+   int threads_per_block = 512;
+   long num_steps = 1099511627776; // must be a multiple of tot_threads
 
    cout.precision(numeric_limits<double>::digits10+2);
-   
+
    if (argc > 1) {
       num_steps = atol(argv[1]);
    }
    if (argc > 2) {
-      threads = atol(argv[2]);
+      threads_per_block = atol(argv[2]);
    }
+
+   int tot_threads = blocks * threads_per_block;
 
    double step, pi;
    Timer timer;
-   
+
    cout << "Calculating PI using:" << endl <<
            "  " << num_steps << " slices" << endl <<
-           "  " << threads << " CUDA threads" << endl;
-   
-   timer.start();
-   
+           "  " << threads_per_block << " CUDA threads" << endl;
+
    double *sum, *d_sum;
-   size_t size = threads*sizeof(double);
+   size_t size = tot_threads*sizeof(double);
    step = 1.0 / num_steps;
+   long work_per_thread = num_steps / tot_threads;
    sum = (double*)malloc(size);
 
+   timer.start();
    cudaMalloc((void**)&d_sum, size);
-   calcpi<<<1,threads>>>(threads, num_steps, d_sum);
+   calcpi<<<blocks, threads_per_block>>>(step, work_per_thread, d_sum);
+   cudaDeviceSynchronize();
+   timer.stop();
    cudaMemcpy(sum, d_sum, size, cudaMemcpyDeviceToHost);
    cudaFree(d_sum);
 
    result = 0.0;
 
-   for (int i=0; i<threads; i++) {
+   for (int i=0; i<tot_threads; i++) {
       result +=sum[i];
    }
    pi = result * step;
 
-   timer.stop();
 
    cout << "Obtained value for PI: " << pi << endl <<
            "Time taken: " << timer.duration() << " seconds" << endl;
 
    return 0;
 }
-
